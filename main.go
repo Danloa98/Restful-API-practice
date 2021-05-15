@@ -6,6 +6,7 @@ import (
 "log"
 "encoding/json"
 "github.com/gorilla/mux"
+"io/ioutil"
 )
 
 
@@ -21,6 +22,7 @@ func handleRequests(){
 myRouter.HandleFunc("/",homepage)
 myRouter.HandleFunc("/articles",returnAllArticles)
 myRouter.HandleFunc("/articles/{id}",returnSingleArticle)
+myRouter.HandleFunc("/article",createNewArticle).Methods("POST")
 log.Fatal(http.ListenAndServe(":10000",myRouter))
 }
 
@@ -56,6 +58,35 @@ for _, article:= range Articles{
 		json.NewEncoder(w).Encode(article)
 	}
 }
+
+//This can be taken as a GET petition :)
+
+}
+
+func createNewArticle(w http.ResponseWriter, r *http.Request){
+//In order to create a new Article, it will be necesary to implement a POST petition
+
+//get the body of our POST request
+//return the string response containing the request body
+
+reqBody,_:=ioutil.ReadAll(r.Body)
+fmt.Fprintf(w,"%+v", string(reqBody))
+
+/*Now we can add the body object into our array. In order to do so we need to unmarshal
+the reqBody that was sent through the POST request
+*/
+
+  // get the body of our POST request
+    // unmarshal this into a new Article struct
+    // append this to our Articles array.    
+
+	var article Article
+	json.Unmarshal(reqBody, &article)//aqui la info obtenida del reqbody la metemos a la variable article
+
+	//Update our global Articles array to include our new article sent by the POST request
+
+	Articles=append(Articles,article)
+	//json.NewEncoder(w).Encode(article)
 
 }
 
