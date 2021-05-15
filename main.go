@@ -19,10 +19,13 @@ func homepage(w http.ResponseWriter, r *http.Request){
 func handleRequests(){
 
 	myRouter:=mux.NewRouter().StrictSlash(true)
+	//Order on our requests is very important to take into consideration when building an REST API
 myRouter.HandleFunc("/",homepage)
 myRouter.HandleFunc("/articles",returnAllArticles)
-myRouter.HandleFunc("/articles/{id}",returnSingleArticle)
 myRouter.HandleFunc("/article",createNewArticle).Methods("POST")
+//add our new DELEEETE endpoint here
+myRouter.HandleFunc("/article/{id}",deleteArticle).Methods("DELETE")
+myRouter.HandleFunc("/articles/{id}",returnSingleArticle)
 log.Fatal(http.ListenAndServe(":10000",myRouter))
 }
 
@@ -89,6 +92,36 @@ the reqBody that was sent through the POST request
 	//json.NewEncoder(w).Encode(article)
 
 }
+
+/*
+Remember that ALL methods implemented to handle information on our REST API
+need to have the w http.ResposeWriter and r *http.Request parameters so we know
+that those methos are the ones being part of the actual API\
+*/
+func deleteArticle(w http.ResponseWriter, r *http.Request){
+
+	//once again we will need to parse the path parameters (the parameter we will sent through the URL)
+	vars:=mux.Vars(r) //Path parameter taken
+
+
+	//we will need to extract the `id` of the article we wish to delete
+	id:=vars["id"]
+
+	//we then need to loop trough all our articles
+
+	for index, article:=range Articles{
+		//if our id path parameter matches one of our articles
+
+		if article.Id==id{
+			//uptade our Articles array to remove the artice we chose
+			Articles=append(Articles[:index],Articles[index+1:]...)
+			json.NewEncoder(w).Encode("Article: "+article.Id+" deleted\n"+"Hehe")
+		}
+
+	}
+
+}
+
 
 var Articles []Article
 
