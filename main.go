@@ -26,6 +26,7 @@ myRouter.HandleFunc("/article",createNewArticle).Methods("POST")
 //add our new DELEEETE endpoint here
 myRouter.HandleFunc("/article/{id}",deleteArticle).Methods("DELETE")
 myRouter.HandleFunc("/articles/{id}",returnSingleArticle)
+myRouter.HandleFunc("/articlesU/{id}",updateArticle).Methods("PUT")
 log.Fatal(http.ListenAndServe(":10000",myRouter))
 }
 
@@ -118,6 +119,40 @@ func deleteArticle(w http.ResponseWriter, r *http.Request){
 			json.NewEncoder(w).Encode("Article: "+article.Id+" deleted\n"+"Hehe")
 		}
 
+	}
+
+}
+
+func updateArticle(w http.ResponseWriter, r *http.Request){
+
+	vars:=mux.Vars(r)
+    id:=vars["id"]//I take the id of the Element I want to update
+
+
+	//Now I take the json body Im sending through the PUT request
+	reqBody,_:=ioutil.ReadAll(r.Body)
+	var newArticle Article
+	json.Unmarshal(reqBody,&newArticle)
+
+	//lets loop trhough our articles array until we find the element with the index 
+	//we sent on the PUT request
+	var found bool
+	
+
+	for i, article:= range Articles{
+
+		if article.Id==id{
+			Articles[i].Title=newArticle.Title
+			Articles[i].Desc=newArticle.Desc
+			Articles[i].Content=newArticle.Content
+			found=true
+		}
+	}
+
+	if found==true{
+		json.NewEncoder(w).Encode(newArticle)
+	}else{
+		json.NewEncoder(w).Encode("Elemento no encontrado")
 	}
 
 }
